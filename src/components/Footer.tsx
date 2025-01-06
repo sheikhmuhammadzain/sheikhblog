@@ -46,7 +46,7 @@ export default function Footer() {
             </motion.span>
             <span>by</span>
             <a
-              href="https://zainsheikh.vercel.app"
+              href="https://zain-sheikh.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-zinc-100 hover:text-zinc-300 transition-colors ml-1"
