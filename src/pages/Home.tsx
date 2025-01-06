@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import type { Post, Subject } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, BookOpen, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
 export default function Home() {
@@ -112,9 +113,21 @@ export default function Home() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
-          // Loading skeletons
           [...Array(6)].map((_, i) => (
-            <Card key={i} className="h-[200px] animate-pulse bg-muted" />
+            <Card
+              key={i}
+              className="bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-zinc-200/80 dark:border-zinc-700/80"
+            >
+              <CardHeader className="space-y-2">
+                <div className="h-6 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4 animate-pulse" />
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-1/4 animate-pulse" />
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-full animate-pulse" />
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-5/6 animate-pulse" />
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-4/6 animate-pulse" />
+              </CardContent>
+            </Card>
           ))
         ) : error ? (
           <div className="col-span-full text-center py-12">
@@ -127,20 +140,35 @@ export default function Home() {
         ) : (
           filteredPosts.map((post) => (
             <Link key={post.id} to={`/posts/${post.id}`}>
-              <Card className="h-full hover:border-primary/50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h2 className="text-xl font-semibold mb-2 line-clamp-2">
-                        {post.title}
-                      </h2>
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {post.content}
-                      </p>
+              <Card 
+                className="group h-full hover:shadow-lg transition-all duration-300 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-zinc-200/80 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 cursor-pointer"
+              >
+                <CardHeader>
+                  <div className="space-y-2">
+                    <CardTitle className="text-xl font-semibold leading-none tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                      {post.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      {post.subject && (
+                        <Badge variant="secondary" className="text-xs font-medium">
+                          {post.subject.name}
+                        </Badge>
+                      )}
                     </div>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{formatDate(post.created_at)}</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="line-clamp-3 text-zinc-600 dark:text-zinc-300">
+                    {post.content}
+                  </p>
+                  <div className="flex items-center gap-4 mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div className="flex items-center gap-1">
+                      <BookOpen className="w-4 h-4" />
                       <span>{calculateReadTime(post.content)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatDate(post.created_at)}</span>
                     </div>
                   </div>
                 </CardContent>
