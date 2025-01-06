@@ -69,82 +69,47 @@ export default function PostDetail() {
     }
   }, [id]);
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-[200px]" />
-        <Skeleton className="h-6 w-[300px]" />
-        <Skeleton className="h-[200px] w-full" />
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold">Post not found</h2>
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/')}
-          className="mt-4"
-        >
-          Go back home
-        </Button>
-      </div>
-    );
-  }
-
-  const readTime = calculateReadTime(post.content);
-
   return (
-    <div className="max-w-4xl mx-auto">
-      <Button 
-        variant="ghost" 
-        onClick={() => navigate(-1)} 
-        className="mb-6"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
-      </Button>
-
-      {post.image_url && (
-        <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden">
-          <img
-            src={post.image_url}
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
+    <div className="w-full max-w-4xl mx-auto">
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="h-8 bg-muted rounded w-3/4"></div>
+          <div className="h-4 bg-muted rounded w-1/4"></div>
+          <div className="space-y-2 mt-8">
+            <div className="h-4 bg-muted rounded"></div>
+            <div className="h-4 bg-muted rounded"></div>
+            <div className="h-4 bg-muted rounded w-2/3"></div>
+          </div>
+        </div>
+      ) : post ? (
+        <article className="prose prose-zinc dark:prose-invert max-w-none">
+          <h1 className="mb-2">{post.title}</h1>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+            <Badge variant="secondary">{post.subject?.name}</Badge>
+            <span>•</span>
+            <time dateTime={post.created_at}>
+              {formatDate(post.created_at)}
+            </time>
+            <span>•</span>
+            <span>{calculateReadTime(post.content)} min read</span>
+          </div>
+          <div className="whitespace-pre-wrap">{post.content}</div>
+        </article>
+      ) : (
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold mb-2">Post not found</h2>
+          <p className="text-muted-foreground mb-4">
+            The post you're looking for doesn't exist or has been removed.
+          </p>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/')}
+            className="mt-4"
+          >
+            Go back home
+          </Button>
         </div>
       )}
-      <Card className="bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-zinc-200/80 dark:border-zinc-700/80">
-        <CardHeader className="space-y-4">
-          <div className="space-y-4">
-            <CardTitle className="text-2xl font-bold">
-              {post.title}
-            </CardTitle>
-            <div className="flex flex-wrap items-center gap-4">
-              {post.subjects && (
-                <Badge variant="secondary">
-                  {post.subjects.name}
-                </Badge>
-              )}
-              <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <Calendar className="h-4 w-4" />
-                <span>{formatDate(post.created_at)}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <Clock className="h-4 w-4" />
-                <span>{readTime} min read</span>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="prose prose-zinc dark:prose-invert">
-            {post.content}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

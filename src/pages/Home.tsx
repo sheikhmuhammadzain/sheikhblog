@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import type { Post, Subject } from "@/lib/types";
@@ -14,62 +14,57 @@ import { format } from 'date-fns';
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string>("all");
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        const { data: subjectsData } = await supabase.from('subjects').select('*');
-        setSubjects(subjectsData || []);
-
         let query = supabase
           .from('posts')
-          .select(`
-            *,
-            subject:subjects (
-              id,
-              name
-            )
-          `)
+          .select('*, subject:subjects(id,name)')
           .eq('published', true)
           .order('created_at', { ascending: false });
 
-        if (selectedSubject !== 'all') {
+        // Only add subject filter if selectedSubject is not null
+        if (selectedSubject !== null) {
           query = query.eq('subject_id', selectedSubject);
         }
 
-        const { data: postsData, error } = await query;
+        const { data, error } = await query;
 
         if (error) {
           console.error('Query error:', error);
           throw error;
         }
 
-        // Get the current user's email
-        const { data: { session } } = await supabase.auth.getSession();
-        const currentUserEmail = session?.user?.email;
-
-        // Map posts with user email
-        const postsWithUsers = (postsData || []).map(post => ({
-          ...post,
-          userEmail: post.user_id === session?.user?.id ? currentUserEmail : 'Anonymous'
-        }));
-
-        setPosts(postsWithUsers);
+        setPosts(data || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
+    };
+
+    fetchPosts();
+  }, [selectedSubject]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const { data: subjectsData } = await supabase.from('subjects').select('*');
+        setSubjects(subjectsData || []);
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      }
     }
 
     fetchData();
-  }, [selectedSubject]);
+  }, []);
 
   // Calculate read time based on content length
   const calculateReadTime = (content: string): string => {
@@ -84,11 +79,12 @@ export default function Home() {
     return format(new Date(date), 'MMMM d, yyyy');
   };
 
-  const filteredPosts = posts.filter(
-    (post) =>
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) =>
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    );
+  }, [posts, searchQuery]);
 
   return (
     <div className="w-full max-w-full">
@@ -101,63 +97,26 @@ export default function Home() {
               placeholder="Search posts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full"
+              className="pl-9 w-full"
             />
           </div>
         </div>
-
-        <div className="relative w-full sm:w-auto">
-          <Button
-            variant="outline"
-            onClick={() => setIsOpen(!isOpen)}
-            className="w-full sm:w-auto justify-between"
-          >
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span>Filter by Subject</span>
-            </div>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${
-                isOpen ? "rotate-180" : ""
-              }`}
-            />
-          </Button>
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute z-10 w-full mt-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm shadow-lg border border-zinc-200/80 dark:border-zinc-700/80 py-1"
-              >
-                <button
-                  onClick={() => {
-                    setSelectedSubject("all");
-                    setIsOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors duration-150"
-                >
-                  All Subjects
-                </button>
-                {subjects.map((subject) => (
-                  <button
-                    key={subject.id}
-                    onClick={() => {
-                      setSelectedSubject(subject.id);
-                      setIsOpen(false);
-                    }}
-                    className="w-full px-4 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors duration-150"
-                  >
-                    {subject.name}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="flex flex-wrap gap-2">
+          {subjects.map((subject) => (
+            <Button
+              key={subject.id}
+              variant={selectedSubject === subject.id ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedSubject(prev => prev === subject.id ? null : subject.id)}
+              className="text-sm"
+            >
+              {subject.name}
+            </Button>
+          ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {isLoading
           ? // Loading skeletons
             [...Array(6)].map((_, i) => (
