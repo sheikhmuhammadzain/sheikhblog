@@ -11,7 +11,8 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminSettings() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState({
     siteName: '',
@@ -20,6 +21,10 @@ export default function AdminSettings() {
     allowComments: true,
     requireModeration: true
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -60,7 +65,6 @@ export default function AdminSettings() {
           email_notifications: settings.emailNotifications,
           allow_comments: settings.allowComments,
           require_moderation: settings.requireModeration,
-          theme: theme
         });
 
       if (error) throw error;
@@ -72,6 +76,10 @@ export default function AdminSettings() {
       setIsLoading(false);
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="space-y-6">
@@ -116,21 +124,16 @@ export default function AdminSettings() {
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
           <CardDescription>
-            Customize how your blog looks
+            Your theme is currently set to {theme}.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="dark-mode">Dark Mode</Label>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                Toggle between light and dark theme
-              </div>
-            </div>
+        <CardContent>
+          <div className="flex items-center space-x-4">
+            <Label htmlFor="dark-mode">Dark Mode</Label>
             <Switch
               id="dark-mode"
               checked={theme === 'dark'}
-              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+              disabled
             />
           </div>
         </CardContent>

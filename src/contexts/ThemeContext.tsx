@@ -2,18 +2,20 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 type Theme = 'dark';
 
+interface ThemeProviderState {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}
+
 interface ThemeProviderProps {
   children: ReactNode;
   defaultTheme?: Theme;
   forcedTheme?: Theme;
 }
 
-interface ThemeProviderState {
-  theme: Theme;
-}
-
 const initialState: ThemeProviderState = {
   theme: 'dark',
+  setTheme: () => null,
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
@@ -23,14 +25,22 @@ export function ThemeProvider({
   defaultTheme = 'dark',
   forcedTheme,
 }: ThemeProviderProps) {
-  const [theme] = useState<Theme>(defaultTheme);
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
 
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
+    if (forcedTheme) {
+      setTheme(forcedTheme);
+    }
+  }, [forcedTheme]);
+
+  useEffect(() => {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  }, [theme]);
 
   const value = {
     theme: forcedTheme || theme,
+    setTheme,
   };
 
   return (

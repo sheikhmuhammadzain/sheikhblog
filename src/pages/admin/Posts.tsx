@@ -8,7 +8,6 @@ import {
   Trash2, 
   Clock, 
   CalendarDays,
-  BookOpen,
   Eye,
   EyeOff
 } from 'lucide-react';
