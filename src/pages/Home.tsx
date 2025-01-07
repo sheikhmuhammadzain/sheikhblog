@@ -24,26 +24,26 @@ export default function Home() {
       setIsLoading(true);
       try {
         let query = supabase
-          .from('posts')
-          .select('*, subject:subjects(id,name)')
-          .eq('published', true)
-          .order('created_at', { ascending: false });
+          .from("posts")
+          .select("*, subject:subjects(id,name)")
+          .eq("published", true)
+          .order("created_at", { ascending: false });
 
         if (selectedSubject !== null) {
-          query = query.eq('subject_id', selectedSubject);
+          query = query.eq("subject_id", selectedSubject);
         }
 
         const { data, error } = await query;
 
         if (error) {
-          console.error('Query error:', error);
+          console.error("Query error:", error);
           throw error;
         }
 
         setPosts(data || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to load posts');
+        console.error("Error fetching data:", error);
+        setError("Failed to load posts");
       } finally {
         setIsLoading(false);
       }
@@ -55,10 +55,12 @@ export default function Home() {
   useEffect(() => {
     async function fetchSubjects() {
       try {
-        const { data: subjectsData } = await supabase.from('subjects').select('*');
+        const { data: subjectsData } = await supabase
+          .from("subjects")
+          .select("*");
         setSubjects(subjectsData || []);
       } catch (error) {
-        console.error('Error fetching subjects:', error);
+        console.error("Error fetching subjects:", error);
       }
     }
 
@@ -73,13 +75,14 @@ export default function Home() {
   };
 
   const formatDate = (date: string) => {
-    return format(new Date(date), 'MMMM d, yyyy');
+    return format(new Date(date), "MMMM d, yyyy");
   };
 
   const filteredPosts = useMemo(() => {
-    return posts.filter((post) =>
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase())
+    return posts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.content.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [posts, searchQuery]);
 
@@ -102,9 +105,13 @@ export default function Home() {
           {subjects.map((subject) => (
             <Button
               key={subject.id}
-              variant={selectedSubject === subject.id ? 'default' : 'outline'}
+              variant={selectedSubject === subject.id ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedSubject(prev => prev === subject.id ? null : subject.id)}
+              onClick={() =>
+                setSelectedSubject((prev) =>
+                  prev === subject.id ? null : subject.id
+                )
+              }
               className="text-sm"
             >
               {subject.name}
@@ -142,9 +149,7 @@ export default function Home() {
         ) : (
           filteredPosts.map((post) => (
             <Link key={post.id} to={`/posts/${post.id}`}>
-              <Card 
-                className="group h-full hover:shadow-lg transition-all duration-300 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-zinc-200/80 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 cursor-pointer"
-              >
+              <Card className="group h-full hover:shadow-lg transition-all duration-300 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-zinc-200/80 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 cursor-pointer">
                 <CardHeader>
                   <div className="space-y-2">
                     <CardTitle className="text-xl font-semibold leading-none tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
@@ -152,7 +157,10 @@ export default function Home() {
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       {post.subject && (
-                        <Badge variant="secondary" className="text-xs font-medium">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs font-medium"
+                        >
                           {post.subject.name}
                         </Badge>
                       )}
@@ -181,13 +189,13 @@ export default function Home() {
       </div>
 
       {user && (
-        <Link 
+        <Link
           to="/admin/posts/new"
           className="fixed right-4 bottom-4 sm:right-8 sm:bottom-8 z-50"
         >
-          <Button 
-            size="lg" 
-            className="rounded-full w-12 h-12 shadow-lg hover:shadow-xl p-0 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          <Button
+            size="lg"
+            className="rounded-full w-12 h-12 shadow-lg hover:shadow-xl p-0 bg-white hover:bg-blue-700 dark:bg-white dark:hover:bg-blue-600"
           >
             <PlusCircle className="h-6 w-6" />
             <span className="sr-only">Create new post</span>
