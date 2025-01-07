@@ -15,6 +15,7 @@ export default function Home() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showMyPosts, setShowMyPosts] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -31,6 +32,10 @@ export default function Home() {
 
         if (selectedSubject !== null) {
           query = query.eq("subject_id", selectedSubject);
+        }
+
+        if (showMyPosts && user) {
+          query = query.eq("user_id", user.id);
         }
 
         const { data, error } = await query;
@@ -50,7 +55,7 @@ export default function Home() {
     };
 
     fetchPosts();
-  }, [selectedSubject]);
+  }, [selectedSubject, showMyPosts]);
 
   useEffect(() => {
     async function fetchSubjects() {
@@ -102,6 +107,16 @@ export default function Home() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {user && (
+            <Button
+              variant={showMyPosts ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowMyPosts(!showMyPosts)}
+              className="text-sm"
+            >
+              My Posts
+            </Button>
+          )}
           {subjects.map((subject) => (
             <Button
               key={subject.id}
