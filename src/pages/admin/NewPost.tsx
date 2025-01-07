@@ -26,6 +26,7 @@ export default function NewPost() {
           {
             ...data,
             user_id: user.id,
+            published: true,
           },
         ]);
 

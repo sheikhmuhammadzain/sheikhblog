@@ -1,30 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminSettings() {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState({
     siteName: '',
     siteDescription: '',
-    emailNotifications: false,
-    allowComments: true,
-    requireModeration: true
   });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -39,9 +28,6 @@ export default function AdminSettings() {
           setSettings({
             siteName: siteSettings.site_name || '',
             siteDescription: siteSettings.site_description || '',
-            emailNotifications: siteSettings.email_notifications || false,
-            allowComments: siteSettings.allow_comments ?? true,
-            requireModeration: siteSettings.require_moderation ?? true
           });
         }
       } catch (error) {
@@ -62,9 +48,6 @@ export default function AdminSettings() {
           id: 1, // Single row for site settings
           site_name: settings.siteName,
           site_description: settings.siteDescription,
-          email_notifications: settings.emailNotifications,
-          allow_comments: settings.allowComments,
-          require_moderation: settings.requireModeration,
         });
 
       if (error) throw error;
@@ -77,29 +60,25 @@ export default function AdminSettings() {
     }
   };
 
-  if (!mounted) {
-    return null;
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="px-4 sm:px-6 py-4 sm:py-8 space-y-6 max-w-2xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-zinc-500 dark:text-zinc-400">
-          Manage your blog settings and preferences
+        <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
+        <p className="text-muted-foreground mt-1">
+          Manage your blog settings
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>General Settings</CardTitle>
+          <CardTitle>Blog Settings</CardTitle>
           <CardDescription>
-            Configure your blog's basic information
+            Configure your blog's information
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="site-name">Site Name</Label>
+            <Label htmlFor="site-name">Blog Name</Label>
             <Input
               id="site-name"
               value={settings.siteName}
@@ -109,83 +88,12 @@ export default function AdminSettings() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="site-description">Site Description</Label>
+            <Label htmlFor="site-description">Blog Description</Label>
             <Textarea
               id="site-description"
               value={settings.siteDescription}
               onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })}
               placeholder="A blog about learning and sharing knowledge"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>
-            Your theme is currently set to {theme}.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-4">
-            <Label htmlFor="dark-mode">Dark Mode</Label>
-            <Switch
-              id="dark-mode"
-              checked={theme === 'dark'}
-              disabled
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Comments & Notifications</CardTitle>
-          <CardDescription>
-            Manage comment settings and notifications
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="allow-comments">Allow Comments</Label>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                Enable or disable comments on blog posts
-              </div>
-            </div>
-            <Switch
-              id="allow-comments"
-              checked={settings.allowComments}
-              onCheckedChange={(checked) => setSettings({ ...settings, allowComments: checked })}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="require-moderation">Require Moderation</Label>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                Review comments before they are published
-              </div>
-            </div>
-            <Switch
-              id="require-moderation"
-              checked={settings.requireModeration}
-              onCheckedChange={(checked) => setSettings({ ...settings, requireModeration: checked })}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="notifications">Email Notifications</Label>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                Receive email notifications for new comments
-              </div>
-            </div>
-            <Switch
-              id="notifications"
-              checked={settings.emailNotifications}
-              onCheckedChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
             />
           </div>
         </CardContent>
@@ -199,10 +107,10 @@ export default function AdminSettings() {
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
+            Saving Changes...
           </>
         ) : (
-          'Save Settings'
+          'Save Changes'
         )}
       </Button>
     </div>

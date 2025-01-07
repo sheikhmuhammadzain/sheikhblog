@@ -5,9 +5,10 @@ import { supabase } from "@/lib/supabase";
 import type { Post, Subject } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, BookOpen, Clock } from "lucide-react";
+import { Search, BookOpen, Clock, PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -16,6 +17,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -177,6 +179,21 @@ export default function Home() {
           ))
         )}
       </div>
+
+      {user && (
+        <Link 
+          to="/admin/posts/new"
+          className="fixed right-4 bottom-4 sm:right-8 sm:bottom-8 z-50"
+        >
+          <Button 
+            size="lg" 
+            className="rounded-full w-12 h-12 shadow-lg hover:shadow-xl p-0 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          >
+            <PlusCircle className="h-6 w-6" />
+            <span className="sr-only">Create new post</span>
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }

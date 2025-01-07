@@ -11,7 +11,6 @@ const schema = z.object({
   title: z.string().min(1, 'Title is required'),
   content: z.string().min(1, 'Content is required'),
   subject_id: z.string().min(1, 'Subject is required'),
-  published: z.boolean(),
 });
 
 export type PostFormData = z.infer<typeof schema>;
@@ -35,16 +34,16 @@ export function PostForm({
   const { register, handleSubmit, formState: { errors } } = useForm<PostFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      published: false,
       ...defaultValues,
     },
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+      <div className="space-y-2">
         <Input
           placeholder="Post Title"
+          className="w-full"
           {...register('title')}
         />
         {errors.title && (
@@ -52,9 +51,9 @@ export function PostForm({
         )}
       </div>
 
-      <div>
+      <div className="space-y-2">
         <select
-          className="w-full border rounded-md p-2"
+          className="w-full border rounded-md px-3 py-2 bg-background text-foreground"
           {...register('subject_id')}
         >
           <option value="">Select Subject</option>
@@ -69,10 +68,10 @@ export function PostForm({
         )}
       </div>
 
-      <div>
+      <div className="space-y-2">
         <Textarea
           placeholder="Post Content"
-          className="min-h-[200px]"
+          className="min-h-[200px] w-full"
           {...register('content')}
         />
         {errors.content && (
@@ -80,17 +79,12 @@ export function PostForm({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          {...register('published')}
-          id="published"
-        />
-        <label htmlFor="published">Published</label>
-      </div>
-
-      <div className="flex gap-4">
-        <Button type="submit" disabled={loading}>
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+        <Button 
+          type="submit" 
+          disabled={loading}
+          className="w-full sm:w-auto"
+        >
           {loading ? 'Saving...' : submitLabel}
         </Button>
         {onCancel && (
@@ -98,6 +92,7 @@ export function PostForm({
             type="button"
             variant="outline"
             onClick={onCancel}
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>

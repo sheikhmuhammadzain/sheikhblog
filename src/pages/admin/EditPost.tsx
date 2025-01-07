@@ -66,7 +66,6 @@ export default function EditPost() {
           title: data.title,
           content: data.content,
           subject_id: data.subject_id,
-          published: data.published,
         })
         .eq('id', id)
         .eq('user_id', user?.id);
@@ -92,10 +91,10 @@ export default function EditPost() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/3 mb-8"></div>
-          <div className="space-y-6">
+          <div className="h-8 bg-muted rounded w-1/3 mb-4 sm:mb-8"></div>
+          <div className="space-y-4 sm:space-y-6">
             <div className="h-10 bg-muted rounded"></div>
             <div className="h-10 bg-muted rounded"></div>
             <div className="h-40 bg-muted rounded"></div>
@@ -108,13 +107,17 @@ export default function EditPost() {
   if (!post) return null;
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Edit Post</h1>
-      <PostForm 
-        defaultValues={post}
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8">Edit Post</h1>
+      <PostForm
         onSubmit={handleSubmit}
-        loading={loading}
+        defaultValues={{
+          title: post.title,
+          content: post.content,
+          subject_id: post.subject_id,
+        }}
         submitLabel="Update Post"
+        loading={loading}
         onCancel={() => navigate('/admin/posts')}
       />
     </div>

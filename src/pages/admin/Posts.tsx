@@ -133,10 +133,10 @@ export default function AdminPosts() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center mb-8">
+      <div className="px-4 sm:px-6 py-4 sm:py-8 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Manage Posts</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Manage Posts</h1>
             <p className="text-muted-foreground mt-1">Loading your posts...</p>
           </div>
         </div>
@@ -157,16 +157,16 @@ export default function AdminPosts() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
+    <div className="px-4 sm:px-6 py-4 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Manage Posts</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Manage Posts</h1>
           <p className="text-muted-foreground mt-1">
             Create, edit, and manage your blog posts
           </p>
         </div>
         <Link to="/admin/posts/new">
-          <Button>
+          <Button className="w-full sm:w-auto">
             <PlusCircle className="h-4 w-4 mr-2" />
             New Post
           </Button>
@@ -174,14 +174,14 @@ export default function AdminPosts() {
       </div>
 
       {posts.length === 0 ? (
-        <Card className="p-8 text-center">
+        <Card className="p-4 sm:p-8 text-center">
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">No Posts Yet</h2>
             <p className="text-muted-foreground">
               You haven't created any posts yet. Get started by creating your first post!
             </p>
             <Link to="/admin/posts/new">
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create Your First Post
               </Button>
@@ -191,45 +191,47 @@ export default function AdminPosts() {
       ) : (
         <div className="grid gap-4">
           {posts.map((post) => (
-            <Card key={post.id} className="group">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <CardTitle className="group-hover:text-primary transition-colors">
+            <Card key={post.id} className="group overflow-hidden">
+              <CardHeader className="space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                  <div className="space-y-1 min-w-0">
+                    <CardTitle className="text-lg sm:text-xl truncate group-hover:text-primary transition-colors">
                       {post.title}
                     </CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                       <Badge variant="secondary" className="text-xs">
                         {post.subject?.name}
                       </Badge>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <div className="flex items-center gap-1">
-                        <CalendarDays className="h-3 w-3" />
-                        {format(new Date(post.created_at), 'MMM d, yyyy')}
+                        <CalendarDays className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">
+                          {format(new Date(post.created_at), 'MMM d, yyyy')}
+                        </span>
                       </div>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {calculateReadTime(post.content)}
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{calculateReadTime(post.content)}</span>
                       </div>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <div className="flex items-center gap-1">
                         {post.published ? (
                           <>
-                            <Eye className="h-3 w-3" />
+                            <Eye className="h-3 w-3 flex-shrink-0" />
                             <span className="text-green-600 dark:text-green-400">Published</span>
                           </>
                         ) : (
                           <>
-                            <EyeOff className="h-3 w-3" />
+                            <EyeOff className="h-3 w-3 flex-shrink-0" />
                             <span className="text-yellow-600 dark:text-yellow-400">Draft</span>
                           </>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link to={`/admin/posts/edit/${post.id}`}>
+                  <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <Link to={`/admin/posts/${post.id}/edit`}>
                       <Button 
                         variant="ghost" 
                         size="sm"
@@ -252,7 +254,7 @@ export default function AdminPosts() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="line-clamp-2 text-muted-foreground">
+                <p className="line-clamp-2 text-sm text-muted-foreground">
                   {post.content}
                 </p>
               </CardContent>
